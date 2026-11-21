@@ -1,0 +1,21 @@
+schema: osera-patch-evidence/0.1.0
+producer: moderne
+release: 3.1.11-backpatch-00001
+baseline: v3.1.10+backpatch.baseline
+fixes:
+  - cve: CVE-2024-4067
+    upstream_fix_url: https://github.com/micromatch/micromatch/commit/500d5d6f42f0e8dfa1cb5464c6cb420b1b6aaaa0
+    advisory_url: https://nvd.nist.gov/vuln/detail/CVE-2024-4067
+    patch_commit_url: https://github.com/moderne-backpatch-alliance/backpatch-micromatch/commit/ee97b9c
+    basis: adapted
+    artifacts:
+      - micromatch
+    note: "New in this release; upstream's fix in 4.0.8, adapted to 3.1.10. It closes the advisory: Regular Expression Denial of Service (ReDoS) in micromatch."
+tests:
+  commit: ee97b9cbe15551c940754bfa4605a144bf56ccae
+  command: npm pack --ignore-scripts (npm 6), then mocha --reporter tap in the tested tree with the packed files laid over, each TAP assertion recorded into the JUnit report
+  runtime: Node.js v22.16.0, macOS 27.2 arm64
+  report: micromatch-3.1.11-backpatch-00001-tests.zip
+  report_sha256: e589ee448cb1788ee469b1c850db3fc06269a0cd4e049dbe4566e769d4d4dd32
+  result: pass
+  note: "upstream's mocha suite (test/*.js) on the packed package's files at the tested commit: 36224 tests, 36224 passed, 0 failed, 0 skipped. The CVE tests (test/braces.js), with this release's production lines reverted at the tested commit: 45 tests, 43 passed, 2 failed, 0 skipped; with them: 45 tests, 45 passed, 0 failed, 0 skipped. Built with no build step, npm pack --ignore-scripts with npm 6.14.12 (Node 10.24.1, as npmjs's 3.1.10 was packed: CHANGELOG.md included), lib/.DS_Store copied from npmjs's 3.1.10 tarball in a directory named micromatch, 8 of npmjs's 10 files for 3.1.10 are identical; the rest are index.js, package.json. The archive's file-origins.yaml maps each packaged file to the commit, or names its inputs and build."
