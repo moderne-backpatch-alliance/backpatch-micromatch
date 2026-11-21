@@ -15,6 +15,35 @@ function optimize(pattern, options) {
   return mm.braces(pattern, extend({optimize: true}, options));
 }
 
+describe('braces - hasBraces', function() {
+  it('should return true when braces are found', function() {
+    var hasBraces = mm.hasBraces;
+    assert.equal(hasBraces('{foo}'), true);
+    assert.equal(hasBraces('foo}'), false);
+    assert.equal(hasBraces('{foo'), false);
+    assert.equal(hasBraces('a{}b'), true);
+    assert.equal(hasBraces('abc {foo} xyz'), true);
+    assert.equal(hasBraces('abc {foo xyz'), false);
+    assert.equal(hasBraces('abc {foo} xyz'), true);
+    assert.equal(hasBraces('abc foo} xyz'), false);
+    assert.equal(hasBraces('abc foo xyz'), false);
+    assert.equal(hasBraces('abc {foo} xyz {bar} pqr'), true);
+    assert.equal(hasBraces('abc {foo xyz {bar} pqr'), true);
+    assert.equal(hasBraces('abc foo} xyz {bar pqr'), false);
+  });
+
+  it('should return a long run of unclosed braces quickly and unchanged', function() {
+    this.timeout(20000);
+    var pattern = new Array(50001).join('{');
+    var start = Date.now();
+    var res = mm.braces(pattern, {cache: false});
+    var elapsed = Date.now() - start;
+    assert.equal(res.length, 1);
+    assert.equal(res[0], pattern);
+    assert(elapsed < 1000, 'expected < 1000ms for 50000 "{", took ' + elapsed + 'ms');
+  });
+});
+
 describe('braces - expanded', function() {
   it('should handle extglobs in braces', function() {
     var fixtures = ['a', 'b', 'c', 'd', 'ab', 'ac', 'ad', 'bc', 'cb', 'bc,d', 'c,db', 'c,d', 'd)', '(b|c', '*(b|c', 'b|c', 'b|cc', 'cb|c', 'x(a|b|c)', 'x(a|c)', '(a|b|c)', '(a|c)'];

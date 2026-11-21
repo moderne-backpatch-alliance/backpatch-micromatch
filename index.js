@@ -18,6 +18,10 @@ var parsers = require('./lib/parsers');
 var cache = require('./lib/cache');
 var utils = require('./lib/utils');
 var MAX_LENGTH = 1024 * 64;
+var hasBraces = function(v) {
+  var index = v.indexOf('{');
+  return index > -1 && v.indexOf('}', index) > -1;
+};
 
 /**
  * The main function takes a list of strings and one or more
@@ -621,7 +625,8 @@ micromatch.braces = function(pattern, options) {
   }
 
   function expand() {
-    if (options && options.nobrace === true || !/\{.*\}/.test(pattern)) {
+    // pattern may be an array: String() keeps the old regex's join(',') coercion
+    if (options && options.nobrace === true || !hasBraces(String(pattern))) {
       return utils.arrayify(pattern);
     }
     return braces(pattern, options);
@@ -868,6 +873,9 @@ function memoize(type, pattern, options, fn) {
 micromatch.compilers = compilers;
 micromatch.parsers = parsers;
 micromatch.caches = cache.caches;
+
+// exposed for tests
+micromatch.hasBraces = hasBraces;
 
 /**
  * Expose `micromatch`
